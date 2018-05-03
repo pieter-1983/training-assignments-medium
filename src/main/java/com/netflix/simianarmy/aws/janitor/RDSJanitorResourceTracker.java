@@ -21,6 +21,7 @@ import com.amazonaws.AmazonClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.simianarmy.aws.DatabaseConnectionConfig;
 import com.netflix.simianarmy.Resource;
 import com.netflix.simianarmy.Resource.CleanupState;
 import com.netflix.simianarmy.ResourceType;
@@ -57,17 +58,17 @@ public class RDSJanitorResourceTracker implements JanitorResourceTracker {
     /**
      * Instantiates a new RDS janitor resource tracker.
      *
-     */
-    public RDSJanitorResourceTracker(String dbDriver, String dbUser,
-			String dbPass, String dbUrl, String dbTable) {
+	 * @param databaseConnectionConfig
+	 */
+    public RDSJanitorResourceTracker(DatabaseConnectionConfig databaseConnectionConfig) {
 		HikariDataSource dataSource = new HikariDataSource();
-		dataSource.setDriverClassName(dbDriver);
-		dataSource.setJdbcUrl(dbUrl);
-		dataSource.setUsername(dbUser);
-		dataSource.setPassword(dbPass);
+		dataSource.setDriverClassName(databaseConnectionConfig.getDbDriver());
+		dataSource.setJdbcUrl(databaseConnectionConfig.getDbUrl());
+		dataSource.setUsername(databaseConnectionConfig.getDbUser());
+		dataSource.setPassword(databaseConnectionConfig.getDbPass());
 		dataSource.setMaximumPoolSize(2);
     	this.jdbcTemplate = new JdbcTemplate(dataSource);
-    	this.table = dbTable;
+    	this.table = databaseConnectionConfig.getDbTable();
 	}
     
     /**

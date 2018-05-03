@@ -1,4 +1,4 @@
-package com.netflix.simianarmy.aws.janitor;
+package com.netflix.simianarmy.aws;
 
 public class DatabaseConnectionConfig {
     private final String dbDriver;

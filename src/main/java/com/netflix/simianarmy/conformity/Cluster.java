@@ -30,13 +30,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The class implementing clusters. Cluster is the basic unit of conformity check. It can be a single ASG or
  * a group of ASGs that belong to the same application, for example, a cluster in the Asgard deployment system.
  */
-public class Cluster {
+public abstract class Cluster {
     public static final String OWNER_EMAIL = "ownerEmail";
     public static final String CLUSTER = "cluster";
     public static final String REGION = "region";
@@ -47,51 +46,19 @@ public class Cluster {
     public static final String CONFORMITY_RULES = "conformityRules";
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private final String name;
-    private final Collection<AutoScalingGroup> autoScalingGroups = Lists.newArrayList();
-    private final String region;
+    public String name;
+
+    public String region;
     private String ownerEmail;
     private Date updateTime;
     private final Map<String, Conformity> conformities = Maps.newHashMap();
     private final Collection<String> excludedConformityRules = Sets.newHashSet();
     private boolean isConforming;
     private boolean isOptOutOfConformity;
-    private final Set<String> soloInstances = Sets.newHashSet();
 
-    /**
-     * Constructor.
-     * @param name
-     *          the name of the cluster
-     * @param autoScalingGroups
-     *          the auto scaling groups in the cluster
-     */
-    public Cluster(String name, String region, AutoScalingGroup... autoScalingGroups) {
-        Validate.notNull(name);
-        Validate.notNull(region);
-        Validate.notNull(autoScalingGroups);
-        this.name = name;
-        this.region = region;
-        for (AutoScalingGroup asg : autoScalingGroups) {
-            this.autoScalingGroups.add(asg);
-        }
-    }
 
-    /**
-     * Constructor.
-     * @param name
-     *          the name of the cluster
-     * @param soloInstances
-     *          the list of all instances
-     */
-    public Cluster(String name, String region, Set<String> soloInstances) {
-        Validate.notNull(name);
-        Validate.notNull(region);
-        Validate.notNull(soloInstances);
-        this.name = name;
-        this.region = region;
-        for (String soleInstance : soloInstances) {
-            this.soloInstances.add(soleInstance);
-        }
+
+    public Cluster() {
     }
 
     /**
@@ -112,14 +79,7 @@ public class Cluster {
         return region;
     }
 
-    /**
-     * * Gets the auto scaling groups of the auto scaling group.
-     * @return
-     *    the auto scaling groups in the cluster
-     */
-    public Collection<AutoScalingGroup> getAutoScalingGroups() {
-        return Collections.unmodifiableCollection(autoScalingGroups);
-    }
+
 
     /**
      * Gets the owner email of the cluster.
@@ -293,7 +253,7 @@ public class Cluster {
      */
     public static Cluster parseFieldToValueMap(Map<String, String> fieldToValue) {
         Validate.notNull(fieldToValue);
-        Cluster cluster = new Cluster(fieldToValue.get(CLUSTER),
+        Cluster cluster = new ScalingCluster(fieldToValue.get(CLUSTER),
                 fieldToValue.get(REGION));
         cluster.setOwnerEmail(fieldToValue.get(OWNER_EMAIL));
         cluster.setConforming(Boolean.parseBoolean(fieldToValue.get(IS_CONFORMING)));
@@ -315,8 +275,6 @@ public class Cluster {
         }
     }
 
-    public Set<String> getSoloInstances() {
-        return Collections.unmodifiableSet(soloInstances);
-    }
+
 
 }

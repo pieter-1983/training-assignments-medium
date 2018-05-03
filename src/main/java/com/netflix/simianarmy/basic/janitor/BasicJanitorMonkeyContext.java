@@ -24,6 +24,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.guice.EurekaModule;
+import com.netflix.simianarmy.aws.DatabaseConnectionConfig;
 import com.netflix.simianarmy.MonkeyCalendar;
 import com.netflix.simianarmy.MonkeyConfiguration;
 import com.netflix.simianarmy.MonkeyRecorder;
@@ -108,7 +109,7 @@ public class BasicJanitorMonkeyContext extends BasicSimianArmyContext implements
         if (dbDriver == null) {       
         	janitorResourceTracker = new SimpleDBJanitorResourceTracker(awsClient(), resourceDomain);
         } else {
-        	RDSJanitorResourceTracker rdsTracker = new RDSJanitorResourceTracker(dbDriver, dbUser, dbPass, dbUrl, dbTable);
+        	RDSJanitorResourceTracker rdsTracker = new RDSJanitorResourceTracker(new DatabaseConnectionConfig(dbDriver, dbPass, dbUser, dbUrl, dbTable));
         	rdsTracker.init();
         	janitorResourceTracker = rdsTracker;
         }

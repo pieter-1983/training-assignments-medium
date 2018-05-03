@@ -112,22 +112,13 @@ public class BasicConformityMonkey extends ConformityMonkey {
         context().resetEventReport();
 
         if (isConformityMonkeyEnabled()) {
-            nonconformingClusters.clear();
-            conformingClusters.clear();
-            failedClusters.clear();
-            nonexistentClusters.clear();
-
+            clearClusters();
             List<Cluster> clusters = crawler.clusters();
             Map<String, Set<String>> existingClusterNamesByRegion = Maps.newHashMap();
-            for (String region : regions) {
-                existingClusterNamesByRegion.put(region, new HashSet<String>());
-            }
-            for (Cluster cluster : clusters) {
-                existingClusterNamesByRegion.get(cluster.getRegion()).add(cluster.getName());
-            }
+            setExistingClusterNamesByRegion(clusters, existingClusterNamesByRegion);
             List<Cluster> trackedClusters = clusterTracker.getAllClusters(regions.toArray(new String[regions.size()]));
             for (Cluster trackedCluster : trackedClusters) {
-                if (!existingClusterNamesByRegion.get(trackedCluster.getRegion()).contains(trackedCluster.getName())) {
+                if (trackedClusterIsNotAnExistingClusterNamesByRegion(existingClusterNamesByRegion, trackedCluster)) {
                     addCluster(nonexistentClusters, trackedCluster);
                 }
             }
@@ -177,6 +168,26 @@ public class BasicConformityMonkey extends ConformityMonkey {
                 sendConformitySummaryEmail();
             }
         }
+    }
+
+    private boolean trackedClusterIsNotAnExistingClusterNamesByRegion(Map<String, Set<String>> existingClusterNamesByRegion, Cluster trackedCluster) {
+        return !existingClusterNamesByRegion.get(trackedCluster.getRegion()).contains(trackedCluster.getName());
+    }
+
+    private void setExistingClusterNamesByRegion(List<Cluster> clusters, Map<String, Set<String>> existingClusterNamesByRegion) {
+        for (String region : regions) {
+            existingClusterNamesByRegion.put(region, new HashSet<String>());
+        }
+        for (Cluster cluster : clusters) {
+            existingClusterNamesByRegion.get(cluster.getRegion()).add(cluster.getName());
+        }
+    }
+
+    private void clearClusters() {
+        nonconformingClusters.clear();
+        conformingClusters.clear();
+        failedClusters.clear();
+        nonexistentClusters.clear();
     }
 
     private static void addCluster(Map<String, Collection<Cluster>> map, Cluster cluster) {

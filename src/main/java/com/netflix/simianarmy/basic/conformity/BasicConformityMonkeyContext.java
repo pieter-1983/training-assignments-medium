@@ -20,6 +20,7 @@ package com.netflix.simianarmy.basic.conformity;
 import java.util.Collection;
 import java.util.Map;
 
+import com.netflix.simianarmy.aws.DatabaseConnectionConfig;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +113,7 @@ public class BasicConformityMonkeyContext extends BasicSimianArmyContext impleme
         if (dbDriver == null) {       
         	clusterTracker = new SimpleDBConformityClusterTracker(awsClient(), sdbDomain);
         } else {
-        	RDSConformityClusterTracker rdsClusterTracker = new RDSConformityClusterTracker(dbDriver, dbUser, dbPass, dbUrl, dbTable);
+        	RDSConformityClusterTracker rdsClusterTracker = new RDSConformityClusterTracker(new DatabaseConnectionConfig(dbDriver, dbUser, dbPass, dbUrl, dbTable));
         	rdsClusterTracker.init();
         	clusterTracker = rdsClusterTracker;
         }
